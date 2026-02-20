@@ -1,0 +1,202 @@
+cfs<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineMarathon | Ultimate Movie Weekend</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #e50914;
+            --dark: #141414;
+            --light: #f5f5f1;
+            --card-bg: #1f1f1f;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; scroll-behavior: smooth; }
+        body { background-color: var(--dark); color: var(--light); overflow-x: hidden; }
+
+        /* --- NAVBAR --- */
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 50px; background: rgba(0, 0, 0, 0.95);
+            position: fixed; width: 100%; z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .logo { font-size: 1.8rem; font-weight: bold; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; }
+        .nav-links { list-style: none; display: flex; gap: 25px; }
+        .nav-links a { text-decoration: none; color: var(--light); font-size: 0.9rem; text-transform: uppercase; transition: 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* --- HERO SLIDER --- */
+        .hero { height: 100vh; width: 100%; position: relative; overflow: hidden; }
+        .slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1s ease-in-out; background-size: cover; background-position: center; }
+        .slide.active { opacity: 1; }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1; }
+        .hero-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 2; }
+        .hero-content h1 { font-size: 4rem; text-transform: uppercase; }
+
+        /* --- NOW SHOWING SECTION --- */
+        .marathon-list { padding: 80px 20px; text-align: center; }
+        .section-title { font-size: 2.5rem; margin-bottom: 50px; border-bottom: 3px solid var(--primary); display: inline-block; padding-bottom: 10px; text-transform: uppercase; }
+        
+        .card-container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 30px; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
+
+        .movie-card { 
+            position: relative; 
+            height: 400px; 
+            border-radius: 15px; 
+            overflow: hidden; 
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s;
+        }
+        .movie-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .card-info { position: absolute; bottom: -100px; left: 0; width: 100%; padding: 20px; background: linear-gradient(to top, black, transparent); transition: 0.4s ease; opacity: 0; }
+        
+        .movie-card:hover { transform: translateY(-15px); box-shadow: 0 15px 30px rgba(229, 9, 20, 0.4); }
+        .movie-card:hover img { transform: scale(1.1); }
+        .movie-card:hover .card-info { bottom: 0; opacity: 1; }
+
+        /* --- ANIMATION FIXES --- */
+        .hidden-card { 
+            display: none; 
+            opacity: 0; 
+            transform: translate3d(0, 40px, 0); 
+            will-change: transform, opacity;
+        }
+
+        .fade-in-box { 
+            animation: smoothFade 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; 
+        }
+
+        @keyframes smoothFade {
+            to { 
+                opacity: 1; 
+                transform: translate3d(0, 0, 0); 
+            }
+        }
+
+        /* --- VIDEO SECTION --- */
+        .video-section { padding: 80px 0; background: #000; text-align: center; }
+        .video-wrapper { width: 98%; max-width: 1800px; margin: 0 auto; padding-bottom: 40%; position: relative; height: 0; }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        /* --- FEEDBACK SECTION --- */
+        .feedback-section { padding: 100px 50px; text-align: center; background: var(--dark); }
+        .feedback-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; margin-top: 40px; }
+        .feedback-card { background: var(--card-bg); padding: 40px; border-radius: 15px; width: 350px; border-left: 5px solid var(--primary); transition: 0.3s; }
+        .feedback-card:hover { transform: translateY(-5px); }
+        .client-name { margin-top: 20px; color: var(--primary); font-weight: bold; }
+
+        .btn { padding: 12px 30px; background: var(--primary); color: white; border: none; cursor: pointer; transition: 0.3s; border-radius: 4px; font-weight: bold; text-decoration: none; display: inline-block; }
+        .btn:hover { background: #b20710; transform: scale(1.05); }
+        .more-link { display: none; color: var(--primary); text-decoration: underline; margin-top: 20px; font-weight: bold; }
+
+        footer { background: #0a0a0a; padding: 40px 0; text-align: center; border-top: 1px solid #333; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo"><i class="fas fa-film"></i> CINE-M</div>
+        <ul class="nav-links">
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#featured">Movies</a></li>
+            <li><a href="#trailer">Trailer</a></li>
+            <li><a href="#feedback">Clients</a></li>
+        </ul>
+    </nav>
+
+    <section id="hero" class="hero">
+        <div class="overlay"></div>
+        <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1600');"></div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1600');"></div>
+        <div class="hero-content">
+            <h1>Smooth Motion Cinema</h1>
+            <p>Glitch-free marathon experience.</p><br>
+            <a href="#featured" class="btn">View Grid</a>
+        </div>
+    </section>
+
+    <section id="featured" class="marathon-list">
+        <h2 class="section-title">Now Showing</h2>
+        <div class="card-container" id="movieGrid">
+            <div class="movie-card"><img src="https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=600" alt="M1"><div class="card-info"><h3>Cyber Future</h3></div></div>
+            <div class="movie-card"><img src="https://images.unsplash.com/photo-1596727147705-54a9d6ed27e6?w=600" alt="M2"><div class="card-info"><h3>Deep Space</h3></div></div>
+            <div class="movie-card"><img src="https://images.unsplash.com/photo-1535016120720-40c6874c3b13?w=600" alt="M3"><div class="card-info"><h3>The Apocalypse</h3></div></div>
+            <div class="movie-card"><img src="https://images.unsplash.com/photo-1478720568477-152d9b164e63?w=600" alt="M4"><div class="card-info"><h3>Silent Echo</h3></div></div>
+            
+            <div class="movie-card hidden-card"><img src="https://images.unsplash.com/photo-1616530940355-351fabd9524b?w=600" alt="M5"><div class="card-info"><h3>Velocity</h3></div></div>
+            <div class="movie-card hidden-card"><img src="https://images.unsplash.com/photo-1509347528160-9a9e33742cd4?w=600" alt="M6"><div class="card-info"><h3>Night Stalker</h3></div></div>
+            <div class="movie-card hidden-card"><img src="https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?w=600" alt="M7"><div class="card-info"><h3>Golden Age</h3></div></div>
+            <div class="movie-card hidden-card"><img src="https://images.unsplash.com/photo-1512149177596-f817c7ef5d4c?w=600" alt="M8"><div class="card-info"><h3>Neon Tokyo</h3></div></div>
+        </div>
+
+        <div style="margin-top: 40px;">
+            <button id="showMoreBtn" class="btn">Show More</button>
+            <a href="#" id="externalLink" class="more-link">Visit Archive Gallery <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <section id="trailer" class="video-section">
+        <h2 class="section-title">Featured Trailer</h2>
+        <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/YoHD9XEInc0?autoplay=0&mute=1" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </section>
+
+    <section id="feedback" class="feedback-section">
+        <h2 class="section-title">Fan Feedback</h2>
+        <div class="feedback-container">
+            <div class="feedback-card"><i class="fas fa-quote-left"></i><p>"Perfect transitions and great selection!"</p><div class="client-name">- Sarah J.</div></div>
+            <div class="feedback-card"><i class="fas fa-quote-left"></i><p>"The movie grid is so satisfying to use."</p><div class="client-name">- Mike R.</div></div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 CineMarathon. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Hero Slider
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+        setInterval(() => {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }, 5000);
+
+        // STAGGERED SHOW MORE LOGIC
+        const showMoreBtn = document.getElementById('showMoreBtn');
+        const externalLink = document.getElementById('externalLink');
+        const hiddenCards = document.querySelectorAll('.hidden-card');
+
+        showMoreBtn.addEventListener('click', () => {
+            showMoreBtn.style.display = 'none'; // Instant hide for button
+            
+            hiddenCards.forEach((card, index) => {
+                // Change display first
+                card.style.display = 'block';
+                
+                // Use setTimeout to create a staggered "wave" entrance
+                setTimeout(() => {
+                    card.classList.add('fade-in-box');
+                }, index * 150); // 150ms delay between each box
+            });
+
+            // Show external link after the last box starts animating
+            setTimeout(() => {
+                externalLink.style.display = 'inline-block';
+                externalLink.classList.add('fade-in-box');
+            }, hiddenCards.length * 150);
+        });
+    </script>
+</body>
+</html>
